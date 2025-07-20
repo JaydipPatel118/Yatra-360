@@ -242,7 +242,7 @@ describe('Sign Up Form Validation', () => {
         // Enter OTP in your app
         cy.get('[formcontrolname="otp1"]').type(otp);
         cy.get('form.ng-dirty > .continuebtn').click();
-        // fdfdff?
+      
         // Assert success
         cy.contains('Account verified').should('exist'); // Adjust as per your app
       });
