@@ -1,4 +1,4 @@
-const { MailSlurp } = require('mailslurp-client');
+import { MailSlurp } from 'mailslurp-client';
 const mailslurp = new MailSlurp({ apiKey: 'b4d991203f2397c45a8d9f0229aec2539bee542be53055f977169efaa4fc0697' });
 
 // Locators for the signup form
@@ -48,8 +48,17 @@ function randomAlpha(length) {
   }
   return result;
 }
-const firstName = `Test${randomAlpha(5)}`;
-const lastName = `User${randomAlpha(5)}`;
+
+function generateRandomUser() {
+  const timestamp = Date.now();
+  return {
+    firstName: randomAlpha(8),
+    lastName: randomAlpha(8),
+    email: `test${timestamp}@yopmail.com`,
+    mobile: `9${Cypress._.random(100000000, 999999999)}`,
+    password: `Aa1!${timestamp}`
+  };
+}
 
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from
@@ -85,14 +94,7 @@ describe('Sign Up Form Validation', () => {
   })
 
   it('should accept disposable email domains', () => {
-    const timestamp = Date.now();
-    const user = {
-      firstName: `TestFirst${timestamp}`,
-      lastName: `TestLast${timestamp}`,
-      email: `test${timestamp}@yopmail.com`,
-      mobile: `9${Cypress._.random(100000000, 999999999)}`,
-      password: `Aa1!${timestamp}`
-    };
+    const user = generateRandomUser();
     fillSignupForm(user);
     cy.get(SIGNUP_BUTTON).click();
     cy.get('body').should('exist'); // Wait for page response
@@ -100,12 +102,12 @@ describe('Sign Up Form Validation', () => {
 
   it('should only allow letters in first and last name fields', () => {
     cy.get(FIRST_NAME_INPUT)
-      .type(`${firstName}123!@#`)
-      .should('have.value', firstName); // Only letters should be accepted
+      .type(`${randomAlpha(5)}123!@#`)
+      .should('have.value', randomAlpha(5)); // Only letters should be accepted
 
     cy.get(LAST_NAME_INPUT)
-      .type(`${lastName}456$%^`)
-      .should('have.value', lastName); // Only letters should be accepted
+      .type(`${randomAlpha(5)}456$%^`)
+      .should('have.value', randomAlpha(5)); // Only letters should be accepted
   })
 
   it('should only accept valid email formats', () => {
@@ -188,8 +190,8 @@ describe('Sign Up Form Validation', () => {
   it('should prevent account creation with already registered email', () => {
     const mobile = `9${Cypress._.random(100000000, 999999999)}`;
     const user = {
-      firstName,
-      lastName,
+      firstName: randomAlpha(5),
+      lastName: randomAlpha(5),
       email: 'existin2121g@yopmail.com',
       mobile,
       password: 'Password1!'
@@ -202,14 +204,7 @@ describe('Sign Up Form Validation', () => {
   it.only('should successfully register and verify OTP with a random email', function () {
     cy.createInbox().then(inbox => {
       const email = inbox.emailAddress;
-      const timestamp = Date.now();
-      const user = {
-        firstName: randomAlpha(8),
-        lastName: randomAlpha(8),
-        email,
-        mobile: `9${Cypress._.random(100000000, 999999999)}`,
-        password: `Aa1!${timestamp}`
-      };
+      const user = generateRandomUser();
       fillSignupForm(user);
       cy.get(SIGNUP_BUTTON).click();
       cy.get(OTP_INPUT).should('be.visible');
