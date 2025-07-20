@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "cypress": "^14.5.1"
+  },
+  "dependencies": {
+    "mailslurp-client": "^15.24.1"
+  }
+}
